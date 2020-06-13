@@ -2,7 +2,10 @@ const express = require('express')
 const app = express()
 var morgan = require('morgan')
 const cors = require('cors')
-personUrl = '/api/persons'
+const mongoose = require('mongoose')
+const Person = require('./models/person')
+require('dotenv').config()
+
 
 app.use(morgan(`:method :url :status :response-time ms - :res[content-length] :body`));
 app.use(express.json())
@@ -48,11 +51,13 @@ app.get('/info', (req, res) => {
   res.send(infoString)
 })
 
-app.get(personUrl, (req, res) => {
-  res.json(persons)
+app.get('/api/persons', (request, response) => {
+  Person.find({}).then(persons => {
+    response.json(persons)
+  })
 })
 
-app.get(`${personUrl}/:id`, (request, response) => {
+app.get(`/api/persons/:id`, (request, response) => {
   const id = Number(request.params.id)
   const person = persons.find(person => person.id === id)
   if (person) {
@@ -62,14 +67,14 @@ app.get(`${personUrl}/:id`, (request, response) => {
   }
 })
 
-app.delete(`${personUrl}/:id`, (request, response) => {
+app.delete(`/api/persons/:id`, (request, response) => {
   const id = Number(request.params.id)
   persons = persons.filter(person => person.id !== id)
 
   response.status(204).end()
 })
 
-app.post(`${personUrl}`, (request, response) => {
+app.post(`/api/persons`, (request, response) => {
   const body = request.body
 
   if (!body.name) {
